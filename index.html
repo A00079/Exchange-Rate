@@ -38,16 +38,20 @@
                 <div class="row">
                     <div class="col-md-12">
                         <div class="row">
-                            <div class="col-md-9">
+                            <div class="col-md-6">
                                 <div class="content">
                                     <h2>A Demographic view for exchange rate of INR against EUR </h2>
                                     <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor.
                                     </p>
                                 </div>
                             </div>
-                            <div class="col-md-3">
-                                <span>Set Range</span>
-                                <input type="text" id="DateRangeInput" name="daterange" value="01/01/2018 - 01/15/2018" />
+                            <div class="col-md-6">
+                                <div class="col-md-6" style="margin-top: 60px;">
+                                    <select onchange="getCurrency()" id="contry-currency" name="currency"></select>
+                                </div>
+                                <div class="col-md-6">
+                                    <input type="text" id="DateRangeInput" name="daterange" value="01/01/2018 - 01/15/2018" />
+                                </div>
                             </div>
                         </div>
                     </div>

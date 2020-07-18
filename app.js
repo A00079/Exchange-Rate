@@ -3,7 +3,7 @@
 let dates = [];
 let exchange_rate = [];
 let randomHexCode = [];
-
+let exch_Currency = "";
 const RandomHexCode = () => {
     for (let i = 0; i < 31; i++) {
         randomHexCode.push('#' + (Math.random() * 0xFFFFFF << 0).toString(16).padStart(6, '0'));
@@ -12,7 +12,9 @@ const RandomHexCode = () => {
 }
 
 
-const fetchApiData = (startdate, enddate) => {
+const fetchApiData = (startdate, enddate,exchangeCurrency) => {
+    exch_Currency = (exchangeCurrency)? exchangeCurrency : 'INR';
+
     let filteredDates = [];
     let urls = ['http://localhost:3000/rates']
     Promise.all(urls.map(u => fetch(u))).then(responses =>
@@ -29,8 +31,8 @@ const fetchApiData = (startdate, enddate) => {
             Object.keys(data[0]).filter((date) => {
                 if (new Date(date) > new Date(startdate) && new Date(date) < new Date(enddate)) {
                     data.map((item) => {
-                        let exchangerate = item[date].INR / 1
-                        filteredDates.push({ "date": date, "INR_Ex_Rate": { "INR": exchangerate } })
+                        let exchangerate = item[date][exch_Currency] / 1
+                        filteredDates.push({ "date": date,"EXH_Rate" : exchangerate})
                     })
                  }
             })
@@ -39,8 +41,8 @@ const fetchApiData = (startdate, enddate) => {
                 if (new Date(date) > new Date("2019-01-31")) { }
                 else {
                     data.map((item) => {
-                        let exchangerate = item[date].INR / 1
-                        filteredDates.push({ "date": date, "INR_Ex_Rate": { "INR": exchangerate } })
+                        let exchangerate = item[date][exch_Currency] / 1
+                        filteredDates.push({ "date": date,"EXH_Rate": exchangerate})
                     })
                 }
             })
@@ -50,7 +52,7 @@ const fetchApiData = (startdate, enddate) => {
 
         filteredDates.map((item) => {
             dates.push(item.date)
-            exchange_rate.push(item.INR_Ex_Rate.INR)
+            exchange_rate.push(item.EXH_Rate)
         })
 
         // Start chart
@@ -182,6 +184,58 @@ $(function () {
         console.log("A new date selection was made: " + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD'));
         let startDate = start.format('MM-DD-YYYY');
         let endDate   = end.format('MM-DD-YYYY');
-        fetchApiData(startDate, endDate)
+        fetchApiData(startDate, endDate,exch_Currency)
     });
 });
+
+
+let dropdown = document.getElementById('contry-currency');
+dropdown.length = 0;
+
+let defaultOption = document.createElement('option');
+defaultOption.text = 'Choose Currency';
+
+dropdown.add(defaultOption);
+dropdown.selectedIndex = 0;
+
+const url = 'https://api.exchangeratesapi.io/latest';
+
+fetch(url)  
+  .then(  
+    function(response) {  
+      if (response.status !== 200) {  
+        console.warn('Looks like there was a problem. Status Code: ' + 
+          response.status);  
+        return;  
+      }
+
+      // Examine the text in the response  
+      response.json().then(function(data) {  
+        console.log('Select',data.rates)
+        let option;
+        Object.keys(data.rates).map((item) =>{
+          option = document.createElement('option');
+      	  option.text = item;
+      	  option.value = item;
+      	  dropdown.add(option);
+        })   
+      });  
+    }  
+  )  
+  .catch(function(err) {  
+    console.error('Fetch Error -', err);  
+  });
+
+
+
+const getCurrency = () =>{
+    var e = document.getElementById("contry-currency");
+    var Currency = e.options[e.selectedIndex].value;
+    exch_Currency = Currency
+    console.log('Currency',exch_Currency)
+
+    randomHexCode.length = 0;
+    dates.length = 0;
+    exchange_rate.length = 0;
+    fetchApiData(null,null,exch_Currency)
+}
